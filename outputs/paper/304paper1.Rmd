@@ -61,10 +61,14 @@ The Daily Shelter & Overnight Service Occupancy & Capacity data set includes all
 ### 2.3.1 Overall Capacity of Shelters
 The capacity of a shelter is a numerical factor that indicates the number of people that one shelter can fit, it is usually dependent on the number of beds that one shelter has. Shelters with a limit of capacity will not accept any homeless individual if the shelter will exceed the limit. As during the pandemic, the capacity of all the shelters will have to follow the rules of social distancing, which helps prevent Covid-19 from spreading, as study shows that elders and smokers are more likely to be affected by Covid-19, and elders and smokers are a major group and homeless community (@26). Below is a histogram of the total capacity of all the shelters recorded in the data set, followed by a summary table containing numerical data summation of the graph.  
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
+
 data %>% ggplot(aes(x=CAPACITY_ACTUAL_BED))+ geom_histogram(fill="#FFDB6D",color="#C4961A")+theme_classic()+ labs(x='Actual bead capacity'
         ,y='Shelter counts', title='Histogram of Actual bed capacity for all shelters in GTA during 2021-2022', caption='Figure 1: Overall capacity histogram')+xlim(0,60)
 ```
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
+# all "na"s will be removed during the process  of making this summary table.
+# this table will conclude the min, max, median, mean, and standered diviation of the data. 
 summary_table <- data %>% filter(!is.na(CAPACITY_ACTUAL_BED))%>%summarise(
                                   min = min(CAPACITY_ACTUAL_BED),
                                   median = median(CAPACITY_ACTUAL_BED),
@@ -80,20 +84,20 @@ In figure 1, we can see that most shelters that are recorded in the data set hav
 
 There are four major cities recorded in the data set, each is Etobicoke, North York, Scarborough, and Toronto, and five different types of shelters available: Families, Women, Men, Youth, and Mixed adults. Homeless can pick their shelter as their own need, i.e their gender, size of the family, and more importantly, their location. Below are a bar chart sorting the types of shelters by their location, followed by a table that gives a numerical conclusion of the chart.
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
+# all "na"s will be removed during the process  of making this graph.
 data %>% filter(!is.na(LOCATION_CITY))%>%ggplot(aes(x=LOCATION_CITY,fill=SECTOR))+geom_bar()+theme_classic()+labs(x="City in GTA that were recorded in the data set"
         ,y='Shelter counts', title='Shelter sector by city', caption='Figure 2: Total count of shelter by sector in each city in GTA')
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
+# all "na"s will be removed during the process  of making this summary table.
+# this table will conclude the min, max, median, mean, and standerd diviation of the data.
 summary_table <- data %>% filter(!is.na(CAPACITY_ACTUAL_BED))%>% filter(!is.na(LOCATION_CITY)) %>% group_by(LOCATION_CITY)%>%summarise(
                                   min = min(CAPACITY_ACTUAL_BED),
-
                                   median = median(CAPACITY_ACTUAL_BED),
-
                                   max = max(CAPACITY_ACTUAL_BED),
                                   mean = mean(CAPACITY_ACTUAL_BED), 
                                   sd = sd(CAPACITY_ACTUAL_BED))
-
 knitr::kable(summary_table, caption = "Summary of actual bed capacity by city")%>%kable_styling(latex_options = "HOLD_position")
 ```
 In Toronto, there are both men's and women's shelters. Shelters provide emergency and transitional housing to homeless men and women, many of whom are senior citizens in need of long-term care. The difference of the different types of shelters is open to different groups, which are distinguished mainly by gender, age, and family status. The allocated to different groups of different homeless refuge approaches can be helpful for management and allocation of limited resources, the different homeless shelters also have different facilities, such as shelters for the family is equipped with family suites rather than an open house, and youth shelters are equipped with a youth help center, Particular attention was paid to the physical and mental health and development of adolescents. From the bar graph, we can easily see that most shelters in the GTA are located in Toronto, secondly North York. Toronto as the city which has the most shelters in GTA has an even layout of different types of shelters, among which mixed-adult shelters are the largest group of shelters. However, as the graph shows, there are no youth shelters in North York, which is a surprise to me. A major takeaway we get from the two charts is that almost all the city in GTA has some number of shelter available to the public, and these two chart can be a great guide to the homeless community to help them look for a shelter if needed. 
@@ -104,9 +108,8 @@ A combination of the above two sections will analyze the needs of the shelters a
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 data %>% ggplot(aes(x=CAPACITY_ACTUAL_BED,y=OCCUPIED_BEDS)) +
   geom_line( color="black", size=2, alpha=0.9, linetype=1) +xlim(0,60)+ylim(0,60)+
-  theme_classic()+
-  ggtitle("Evolution of something")+labs(x='Actual bead capacity'
-        ,y='Actual occupied beds', title='Capacity VS. Occupation', caption='Figure 3: Capacity vs Occupation Line Graph in GTA')
+  theme_classic()+labs(x='Actual bead capacity'
+                       ,y='Actual occupied beds', title='Capacity VS. Occupation', caption='Figure 3: Capacity vs Occupation Line Graph in GTA')
 ```
 In this graph, as the shelter will not be allowed their occupancy to exceed their capacity, the most extreme situation one can expect is a perfect x=y line, which means every shelter reaches its 100% capacity, there for the conclusion of the Toronto shelter system is overwhelming can be made. However, what we saw in the graph is different, most shelters do reach their capacity with a graph showing their capacity equal to their occupied, but there are also plenty of shelters that did not reach their capacity and still have plenty of space available to be occupied. This is completely counter the fact that some homeless people slept in makeshift encampments in municipal parks such as Trinity Bellwoods Park, Alexandra Park, and Lamport Stadium. The city declared these structures to be unsafe and illegal, citing fire hazards and COVID-19 transmission as reasons and spent nearly $2 million to clear the encampments(@18). Also, this data almost seems un-true as reporters are claiming "Between October 30, 2020, and February 28, 2021, at least 13,780 callers to the City's shelter system Central Intake line requesting a spot in the shelter system were advised there was no room available - an average of 117 callers per day."(@19). As can be seen from the chart above, the data that the government gives us about homeless shelters is different from what people experience in the official situation. There's still a lot of investigation to be done, and it's not clear what the government's huge investment is going on, and whether it has anything to do with corruption. But the fact that the numbers are so different from reality shows that the shortage of homeless shelters still exists and needs to be taken seriously. There are so many people in Toronto who need help and a chance to start over.
 
