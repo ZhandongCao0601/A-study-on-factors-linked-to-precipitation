@@ -71,7 +71,7 @@ summary_table <- data %>% filter(!is.na(CAPACITY_ACTUAL_BED))%>%summarise(
                                   max = max(CAPACITY_ACTUAL_BED),
                                   mean = mean(CAPACITY_ACTUAL_BED), 
                                   sd = sd(CAPACITY_ACTUAL_BED))
-# change their orders, add or remove some of them
+
 knitr::kable(summary_table, caption = "Summary of actual bed capacity")%>%kable_styling(latex_options = "HOLD_position")
 ```
 In figure 1, we can see that most shelters that are recorded in the data set have a capacity between 20 to 40, a few shelters have a capacity of almost 60. From the summary table, the data is more clear for us to view, the actual capacity of the shelters touches as low as only 1 person and reaches as high as 234 people. The actual capacity of shelters has a median of 26 people and a mean of 34 people, which further proved our indication, which was most shelters have a capacity of between 20 to 40. Do take note that, the number of capacity was being recorded daily at 4 am, this may affect the data in a biased way where the facilities being wear and tear, shelters bing shut down due to Covid-19 and other un-preconceptable factors. Both the graph and the table give us a great overall view of the capacity of the shelters in GTA, later on, we will see how these are compared to the occupancy of the shelters.  
@@ -93,7 +93,7 @@ summary_table <- data %>% filter(!is.na(CAPACITY_ACTUAL_BED))%>% filter(!is.na(L
                                   max = max(CAPACITY_ACTUAL_BED),
                                   mean = mean(CAPACITY_ACTUAL_BED), 
                                   sd = sd(CAPACITY_ACTUAL_BED))
-# change their orders, add or remove some of them
+
 knitr::kable(summary_table, caption = "Summary of actual bed capacity by city")%>%kable_styling(latex_options = "HOLD_position")
 ```
 In Toronto, there are both men's and women's shelters. Shelters provide emergency and transitional housing to homeless men and women, many of whom are senior citizens in need of long-term care. The difference of the different types of shelters is open to different groups, which are distinguished mainly by gender, age, and family status. The allocated to different groups of different homeless refuge approaches can be helpful for management and allocation of limited resources, the different homeless shelters also have different facilities, such as shelters for the family is equipped with family suites rather than an open house, and youth shelters are equipped with a youth help center, Particular attention was paid to the physical and mental health and development of adolescents. From the bar graph, we can easily see that most shelters in the GTA are located in Toronto, secondly North York. Toronto as the city which has the most shelters in GTA has an even layout of different types of shelters, among which mixed-adult shelters are the largest group of shelters. However, as the graph shows, there are no youth shelters in North York, which is a surprise to me. A major takeaway we get from the two charts is that almost all the city in GTA has some number of shelter available to the public, and these two chart can be a great guide to the homeless community to help them look for a shelter if needed. 
