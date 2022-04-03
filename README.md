@@ -1,1 +1,1 @@
-This is a University of Toronto STA304 2022W paper. This paper analyzes the data set found on open Toronto data about the occupancy and capacity of the shelters in Toronto. This paper talks about data processing, analysis, and social-related matters. Have fun reading it!
+This is a University of Toronto STA304 final paper. This paper analyzes the Fuel economy and selling prices of Hybrid Electric Vehicles. This paper talks about data processing, analysis, and social-related matters. Have fun reading it!
