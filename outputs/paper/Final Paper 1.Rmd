@@ -1,5 +1,5 @@
 ---
-title: "A study on factors linked to precipitation^[Code and data are available in this GitHub repository: https://github.com/ZhandongCao0601/STA304final.git]"
+title: "A study on factors linked to precipitation^[Code and data are available in this GitHub repository: https://github.com/ZhandongCao0601/A-study-on-factors-linked-to-precipitation.git]"
 date: "26 April 2022"
 author: "Zhandong Cao"
 lang: "en"
