@@ -1,7 +1,7 @@
 ---
 title: "A study on factors linked to precipitation^[Code and data are available in this GitHub repository: https://github.com/ZhandongCao0601/STA304final.git]"
-date: "2022/04/24"
-author: "Zhandong Cao 1005689391"
+date: "26 April 2022"
+author: "Zhandong Cao"
 lang: "en"
 output:
   pdf_document:
@@ -10,6 +10,51 @@ output:
 abstract: "In agriculture, the degree of regional climate change, especially the regional precipitation, is particularly important. Sufficient rainfall is helpful for the normal growth of crops, but excessive or insufficient rainfall will have adverse effects on crops. At this time, artificial intervention on crop water content is required. In this paper, the yearly precipitation in England and Wales are collected and explored via multiple linear regression model and two sample t-test, then the variability of raindrop is investigated in order to give feasible suggestions to the algriculture.\\par\\textbf{Keywords:} Precipitation, rainfall, regression model, multiple comparison"
 bibliography: ref.bib
 ---
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(moments)
+library(reshape2)
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+precipitation = read.csv('data.csv')
+for (i in 2:length(precipitation)) {
+  print('Variable')
+  print(mean(precipitation[[i]], na.rm=TRUE))
+  print(median(precipitation[[i]], na.rm=TRUE))
+  print(sd(precipitation[[i]], na.rm=TRUE))
+  print(max(precipitation[[i]], na.rm=TRUE) - min(precipitation[[i]], na.rm=TRUE))
+  print(IQR(precipitation[[i]], na.rm=TRUE))
+  print(skewness(precipitation[[i]], na.rm=TRUE))
+  print(kurtosis(precipitation[[i]], na.rm=TRUE))
+}
+# Correlation matrix heatmap
+cormat <- round(cor(precipitation),2)
+melted_cormat <- melt(cormat)
+ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value))  + 
+  geom_tile() + xlab("") + ylab("") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+# Scatter plot
+mslp <- ggplot(precipitation, aes(mslp, Precipitation)) + geom_smooth(method = "loess")
+w <- ggplot(precipitation, aes(w, Precipitation)) + geom_smooth(method = "loess")
+s <- ggplot(precipitation, aes(s, Precipitation)) + geom_smooth(method = "loess")
+brestzon <- ggplot(precipitation, aes(brestzon, Precipitation)) + geom_smooth(method = "loess")
+kefzon <- ggplot(precipitation, aes(kefzon, Precipitation)) + geom_smooth(method = "loess")
+corunmer <- ggplot(precipitation, aes(corunmer, Precipitation)) + geom_smooth(method = "loess")
+naoi <- ggplot(precipitation, aes(naoi, Precipitation)) + geom_smooth(method = "loess")
+sstatlan <- ggplot(precipitation, aes(sstatlan, Precipitation)) + geom_smooth(method = "loess")
+sstengch <- ggplot(precipitation, aes(sstengch, Precipitation)) + geom_smooth(method = "loess")
+sstmed <- ggplot(precipitation, aes(sstmed, Precipitation)) + geom_smooth(method = "loess")
+grid.arrange(mslp, w, s, brestzon, kefzon, corunmer, naoi, sstatlan, sstengch, sstmed, ncol = 3, nrow = 4)
+# Regression model
+model = lm(data = precipitation, Precipitation ~ mslp + brestzon + kefzon + sstatlan + sstengch)
+summary(model)
+# two sample t test
+sample1 = precipitation$Precipitation[1:24]
+sample2 = precipitation$Precipitation[25:50]
+t.test(sample1, sample2, var.equal = FALSE)
+```
 \newpage
 
 # Introduction
@@ -30,8 +75,27 @@ For the first question, we can use basic data analysis methods to determine whic
 
 This paper first provides the basic statistics as well as figures that display the overall distribution and other information about the original dataset in \textbf{Data} section. To solve the questions of interest above, some methods such as linear regression model, t test for two observational series are adopted, \textbf{Methodology} section gives a brief concept and introduction of the methods used in our paper. \textbf{Result} shows the R outcome and the result yield from our statistical methods and \textbf{Discussion} section will be elebaorated around the understanding of percipitation in England and Wales based on the methods result, the drawbacks of the methods as well as the possible future works. The data set will be processed using R (@1), and a few packages inside R called tidyverse (@2). Most figures and tables are also being done with R using ggplot2 (@3), dplyr(@4), kableextra (@5), moment(@6), reshape2(@7), and gridExtra(@8).To generate this R markdown report, knitr (@9) package was also used.
 
-# Data
+\newpage
 
+# Data
+First of all, below is a quick EDA of the data and some quick view of the Distributions of the variables.
+```{r echo=FALSE, fig.height=4, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot(precipitation, aes(x=mslp))+
+  geom_histogram(color="darkblue", fill="lightblue")+
+  theme_minimal()+
+  labs(title = "Fig 0.1: Distributions of the variables (barplot of mslp)")
+```
+We can see that the majority of the data was Distributed from -250 to 500 mslp. 
+
+```{r echo=FALSE, fig.height=4, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot(precipitation, aes(x=sstatlan))+
+  geom_histogram(color="darkblue", fill="lightblue")+
+  theme_minimal()+
+  labs(title = "Fig 0.2: Distributions of the variables (barplot of Sea-surface temperature )")
+```
+We can see from the above plot that the the sea-level temp is mostly 0 and evenly distribute on the x-axis. 
 ```{r include=FALSE}
 library(moments)
 library(reshape2)
@@ -109,6 +173,14 @@ This paper tries to find the influential factors via statistical model on the lo
 By looking at the sign and magnificance of regression coefficient, we are able to exlpore the relations between the five key factors and the precipitation variable. The last question: \textbf{If we divide then yearly raindrop into two time interval (from 1951 to 1975 versus from 1876 to 1999), are the two time period average raindrops differ from aech other signifiantly in statistics?} is related to the overall variation of the precipitation in England and Wales. We are interested in answering this as we might learn whether some instant strategies are necessary to adopt if the precipitation varies dramatically. To answer this question, two sample t test are used. We manly focus on the average precipitation level as well as consider the variation within each time interval. The hypothesis test method are used and the statistic (follows student t distribution if null hypothesis are true) are given as follows: $$\frac{\overline{X}_1-\overline{X}_2}{\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}},\ df = \frac{(\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2})^2}{\frac{(s_1^2/n1)^2}{n_1-1}+\frac{(s_2^2/n2)^2}{n_2-1}}$$
 By looking at the P-value of the hypothesis test, we are able to answer question 3.
 
+The other two key methods that I will use to anaylise the data is by examing P-value and performing a t-test on the statistical model that was build. 
+
+## P-value:
+The p-value is a number produced conducted during a statistical  hypothesis test that represents the likelihood of finding of a set of observations.It is used in hypothesis testing to help determine if the null hypothesis should be rejected. The lower the p-value, the more likely the null hypothesis will be rejected. Usually, we consider the P-value as low when it is less than 0.05, which we say there are some evidence to reject the null hypothesis. 
+
+## T-test:
+A t-test is an inferential statistic method that is used to see if there is a significant difference in the means of two groups that are connected in some way. A t-test is a hypothesis testing technique that may be used to assess an assumption that is relevant to a population.
+
 # Results
 
 ## What is linked to the precipitation
@@ -129,8 +201,17 @@ The vairable and its representation is:
 \end{itemize}
 
 The regression output is given below:
-```{r echo=FALSE}
+
+| Variable | Description                          |  Estimate | Std. Error | t value    | P-value |
+|----------|--------------------------------------|--------|--------|-------|-------|
+| mslp     | Mean sea-level pressure              | -0.12783 | 0.02785  | -4.590 | 3.83e-05  |
+| brestzon | The zonal water vapour $flux^1$          | 18.42217   | 9.6272   | 1.914  | 0.0623  |
+| kefzon   | The zonal water vapour $flux^2$           | 1.07303   | 15.02184 | 0.071  | 0.9434  | 
+| sstatlan | Sea-surface temperature              | -23.05318   | 13.14552   | -1.754  | 0.866  |
+| sstengch | Sea Surface Temperature $anomalies^1$  | 9.63816   | 10.86659   | 0.887  | 0.38  |
+```{r include=FALSE, paged.print=FALSE}
 model = lm(data = precipitation, Precipitation ~ mslp + brestzon + kefzon + sstatlan + sstengch)
+
 summary(model)
 ```
 As we can see, the overall impact for the five variables are:
@@ -154,7 +235,7 @@ The above four plots gives us the goodness of fit for the regression model. We c
 
 ## Are precipitation amount varies over time
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 # two sample t test
 sample1 = precipitation$Precipitation[1:24]
 sample2 = precipitation$Precipitation[25:50]
@@ -183,49 +264,146 @@ In the methodology and result part, we see some underlying drawbacks for the met
 
 \newpage
 
+
+# Appendix
+## Data sheet:
+
+1. *For what purpose was the dataset created? Was there a specific task in mind? Was there a specific gap that needed to be filled? Please provide a description.*
+    - The dataset was innitialy created to serve as agricultural use. It is to record tha precipitation of area across the UK.
+2. *Who created the dataset (for example, which team, research group) and on behalf of which entity (for example, company, institution, organization)?*
+    - This dataset was created by a group of scientist from the 90s, they are:Alexander and Jones (2001) Jones and Conway (1997) Gregory J. M. and Wigley(1991) T. M. L. Wigley and Jones (1987) J. M. L. Wigley T. M. L. and Jones (1984)
+3. *Who funded the creation of the dataset? If there is an associated grant, please provide the name of the grantor and the grant name and number.*
+    - This part of information is missing.
+4. *Any other comments?*
+    - N/A
+
+**Composition**
+
+1. *What do the instances that comprise the dataset represent (for example, documents, photos, people, countries)? Are there multiple types of instances (for example, movies, users, and ratings; people and interactions between them; nodes and edges)? Please provide a description.*
+	- This data set was recorded in the UK only, and it served as national data.
+	and is sepreated by different measurement that the scientiset need. They are sea-level data, water vapour data, and wind data.
+2. *How many instances are there in total (of each type, if appropriate)?*
+	- sea-level data:4
+	- water vapour: 4
+	_ wind data: 2
+3. *Does the dataset contain all possible instances or is it a sample (not necessarily random) of instances from a larger set? If the dataset is a sample, then what is the larger set? Is the sample representative of the larger set (for example, geographic coverage)? If so, please describe how this representativeness was validated/verified. If it is not representative of the larger set, please describe why not (for example, to cover a more diverse range of instances, because instances were withheld or unavailable).*
+	-  It is almost impossible to consider all factors when it comes to a study of nature, also, this is limited by the tech they have in the 90s. 
+4. *What data does each instance consist of? "Raw" data (for example, unprocessed text or images) or features? In either case, please provide a description.*
+	- all data is numeric.
+5. *Is there a label or target associated with each instance? If so, please provide a description.*
+	- There are no associated label or target to each instance.
+6. *Is any information missing from individual instances? If so, please provide a description, explaining why this information is missing (for example, because it was unavailable). This does not include intentionally removed information, but might include, for example, redacted text.*
+	- There are a few missing data across the data set, but they are rather little considering the size of the data. 
+7. *Are relationships between individual instances made explicit (for example, users' movie ratings, social network links)? If so, please describe how these relationships are made explicit.*
+	- There are no particular relationships between the instances.
+8. *Are there recommended data splits (for example, training, development/validation, testing)? If so, please provide a description of these splits, explaining the rationale behind them.*
+	- There are no recommended data splits.
+9. *Are there any errors, sources of noise, or redundancies in the dataset? If so, please provide a description.*
+	- There are no errors, noise, or redundancies in thea dataset.
+10. *Is the dataset self-contained, or does it link to or otherwise rely on external resources (for example, websites, tweets, other datasets)? If it links to or relies on external resources, a) are there guarantees that they will exist, and remain constant, over time; b) are there official archival versions of the complete dataset (that is, including the external resources as they existed at the time the dataset was created); c) are there any restrictions (for example, licenses, fees) associated with any of the external resources that might apply to a dataset consumer? Please provide descriptions of all external resources and any restrictions associated with them, as well as links or other access points, as appropriate.*
+	- This dataset is self-contained. 
+11. *Does the dataset contain data that might be considered confidential (for example, data that is protected by legal privilege or by doctor-patient confidentiality, data that includes the content of individuals' non-public communications)? If so, please provide a description.*
+	- There are no data contained in the data set that will be considered condidential.
+12. *Does the dataset contain data that, if viewed directly, might be offensive, insulting, threatening, or might otherwise cause anxiety? If so, please describe why.*
+	- This data did not include any information that will be considered offensive. 
+13. *Does the dataset identify any sub-populations (for example, by age, gender)? If so, please describe how these subpopulations are identified and provide a description of their respective distributions within the dataset.*
+	- The dataset studies the information of nature, and should not include any sub-population. 
+14. *Is it possible to identify individuals (that is, one or more natural persons), either directly or indirectly (that is, in combination with other data) from the dataset? If so, please describe how.*
+	- Due to the nature of this data-set, it is not possible to identify any individuals in this data-set. 
+15. *Does the dataset contain data that might be considered sensitive in any way (for example, data that reveals race or ethnic origins, sexual orientations, religious beliefs, political opinions or union memberships, or locations; financial or health data; biometric or genetic data; forms of government identification, such as social security numbers; criminal history)? If so, please provide a description.*
+	- This data set did not include any data that will be considered sensitive in any aspect. 
+16. *Any other comments?*
+	- N/A
+
+**Collection process**
+
+1. *How was the data associated with each instance acquired? Was the data directly observable (for example, raw text, movie ratings), reported by subjects (for example, survey responses), or indirectly inferred/derived from other data (for example, part-of-speech tags, model-based guesses for age or language)? If the data was reported by subjects or indirectly inferred/derived from other data, was the data validated/verified? If so, please describe how.*
+	- This data associated with each instance is through the scientifical method. 
+2. *What mechanisms or procedures were used to collect the data (for example, hardware apparatuses or sensors, manual human curation, software programs, software APIs)? How were these mechanisms or procedures validated?*
+	- The procedure was by examing the nature pieces of information measured by the scientists. 
+3. *If the dataset is a sample from a larger set, what was the sampling strategy (for example, deterministic, probabilistic with specific sampling probabilities)?*
+	- The dataset is not a sample from any existing larger set. 
+4. *Who was involved in the data collection process (for example, students, crowdworkers, contractors) and how were they compensated (for example, how much were crowdworkers paid)?*
+	- The data was collected by the scientists in the UK. 
+5. *Over what timeframe was the data collected? Does this timeframe match the creation timeframe of the data associated with the instances (for example, recent crawl of old news articles)? If not, please describe the timeframe in which the data associated with the instances was created.*
+	- The data was collected from 1984 to 2001. 
+6. *Were any ethical review processes conducted (for example, by an institutional review board)? If so, please provide a description of these review processes, including the outcomes, as well as a link or other access point to any supporting documentation.*
+	- There are no ethical review processes included. 
+7. *Did you collect the data from the individuals in question directly, or obtain it via third parties or other sources (for example, websites)?*
+	- The data was not collected by myself.
+8. *Were the individuals in question notified about the data collection? If so, please describe (or show with screenshots or other information) how notice was provided, and provide a link or other access point to, or otherwise reproduce, the exact language of the notification itself.*
+	- There are no individual needed to be questioned.
+9. *Did the individuals in question consent to the collection and use of their data? If so, please describe (or show with screenshots or other information) how consent was requested and provided, and provide a link or other access point to, or otherwise reproduce, the exact language to which the individuals consented.*
+	- There are no individual needed to be questioned.
+10. *If consent was obtained, were the consenting individuals provided with a mechanism to revoke their consent in the future or for certain uses? If so, please provide a description, as well as a link or other access point to the mechanism (if appropriate).*
+	- There are no individual needed to be questioned.
+11. *Has an analysis of the potential impact of the dataset and its use on data subjects (for example, a data protection impact analysis) been conducted? If so, please provide a description of this analysis, including the outcomes, as well as a link or other access point to any supporting documentation.*
+	- There are no analysis of potential impact of the dataset. 
+12. *Any other comments?*
+	- N/A
+
+**Preprocessing/cleaning/labeling**
+
+1. *Was any preprocessing/cleaning/labeling of the data done (for example, discretization or bucketing, tokenization, part-of-speech tagging, SIFT feature extraction, removal of instances, processing of missing values)? If so, please provide a description. If not, you may skip the remaining questions in this section.*
+	- Yes, there are cleaning done by removing the Nas (missing data) from the data. 
+2. *Was the "raw" data saved in addition to the preprocessed/cleaned/labeled data (for example, to support unanticipated future uses)? If so, please provide a link or other access point to the "raw" data.*
+	- The 'raw' data is saved in the input folder. 
+3. *Is the software that was used to preprocess/clean/label the data available? If so, please provide a link or other access point.*
+	- R the programing language used, it is available to the public.
+4. *Any other comments?*
+	- N/A
+
+**Uses**
+
+1. *Has the dataset been used for any tasks already? If so, please provide a description.*
+	- The data-set may be used in other tasks, but the information was not publiced. 
+2. *Is there a repository that links to any or all papers or systems that use the dataset? If so, please provide a link or other access point.*
+	- Code and data are available in this GitHub repository: https://github.com/ZhandongCao0601/STA304final.git
+3. *What (other) tasks could the dataset be used for?*
+	- Any nature related task. 
+4. *Is there anything about the composition of the dataset or the way it was collected and preprocessed/cleaned/labeled that might impact future uses? For example, is there anything that a dataset consumer might need to know to avoid uses that could result in unfair treatment of individuals or groups (for example, stereotyping, quality of service issues) or other risks or harms (for example, legal risks, financial harms)? If so, please provide a description. Is there anything a dataset consumer could do to mitigate these risks or harms?*
+	- There are no information about the composition of the dataset.
+5. *Are there tasks for which the dataset should not be used? If so, please provide a description.*
+	- N/A
+6. *Any other comments?*
+	- N/A
+
+**Distribution**
+
+1. *Will the dataset be distributed to third parties outside of the entity (for example, company, institution, organization) on behalf of which the dataset was created? If so, please provide a description.*
+	- The data-set will not be distributed to third parties outside of the entity.
+2. *How will the dataset be distributed (for example, tarball on website, API, GitHub)? Does the dataset have a digital object identifier (DOI)?*
+	- The data will be distributed on GitHub.
+3. *When will the dataset be distributed?*
+	- The data-set will be distributed in April 2022. 
+4. *Will the dataset be distributed under a copyright or other intellectual property (IP) license, and/or under applicable terms of use (ToU)? If so, please describe this license and/ or ToU, and provide a link or other access point to, or otherwise reproduce, any relevant licensing terms or ToU, as well as any fees associated with these restrictions.*
+	- The dataset will not be distributed under a copyright or other intellectual property.
+5. *Have any third parties imposed IP-based or other restrictions on the data associated with the instances? If so, please describe these restrictions, and provide a link or other access point to, or otherwise reproduce, any relevant licensing terms, as well as any fees associated with these restrictions.*
+	- There are no third parties imposed IP-based or other restrictions on the data associated with the instances.
+6. *Do any export controls or other regulatory restrictions apply to the dataset or to individual instances? If so, please describe these restrictions, and provide a link or other access point to, or otherwise reproduce, any supporting documentation.*
+	- There are no export controls or other regulatory restrictions apply to the dataset or to individual instances.
+7. *Any other comments?*
+	- N/A
+
+**Maintenance**
+
+1. *Who will be supporting/hosting/maintaining the dataset?*
+	- Zhandong Cao (Leo)
+2. *How can the owner/curator/manager of the dataset be contacted (for example, email address)?*
+	- By E-mail at "Zhandong.cao@mail.utoronto.ca"
+3. *Is there an erratum? If so, please provide a link or other access point.*
+	- There are no erratum
+4. *Will the dataset be updated (for example, to correct labeling errors, add new instances, delete instances)? If so, please describe how often, by whom, and how updates will be communicated to dataset consumers (for example, mailing list, GitHub)?*
+	- There are no plane to update the data-set. It is hard to get data from UK.
+5. *If the dataset relates to people, are there applicable limits on the retention of the data associated with the instances (for example, were the individuals in question told that their data would be retained for a fixed period of time and then deleted)? If so, please describe these limits and explain how they will be enforced.*
+	- There are no pplicable limits on the retention of the data associated with the instances.
+6. *Will older versions of the dataset continue to be supported/hosted/maintained? If so, please describe how. If not, please describe how its obsolescence will be communicated to dataset consumers.*
+	- Older version will not be hosted. 
+7. *If others want to extend/augment/build on/contribute to the dataset, is there a mechanism for them to do so? If so, please provide a description. Will these contributions be validated/verified? If so, please describe how. If not, why not? Is there a process for communicating/distributing these contributions to dataset consumers? If so, please provide a description.*
+	- The repository can be extend/augment/build on/contribute to. I (the writer of this report) will not be responsible for any responsivlity. 
+8. *Any other comments?*
+	- N/A
+
+\newpage
+
 # References
-
-
-```{r message=FALSE, warning=FALSE, include=FALSE}
-library(moments)
-library(reshape2)
-library(ggplot2)
-library(dplyr)
-library(gridExtra)
-precipitation = read.csv('data.csv')
-for (i in 2:length(precipitation)) {
-  print('Variable')
-  print(mean(precipitation[[i]], na.rm=TRUE))
-  print(median(precipitation[[i]], na.rm=TRUE))
-  print(sd(precipitation[[i]], na.rm=TRUE))
-  print(max(precipitation[[i]], na.rm=TRUE) - min(precipitation[[i]], na.rm=TRUE))
-  print(IQR(precipitation[[i]], na.rm=TRUE))
-  print(skewness(precipitation[[i]], na.rm=TRUE))
-  print(kurtosis(precipitation[[i]], na.rm=TRUE))
-}
-# Correlation matrix heatmap
-cormat <- round(cor(precipitation),2)
-melted_cormat <- melt(cormat)
-ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value))  + 
-  geom_tile() + xlab("") + ylab("") +
-  theme(axis.text.x=element_text(angle=45, hjust=1))
-# Scatter plot
-mslp <- ggplot(precipitation, aes(mslp, Precipitation)) + geom_smooth(method = "loess")
-w <- ggplot(precipitation, aes(w, Precipitation)) + geom_smooth(method = "loess")
-s <- ggplot(precipitation, aes(s, Precipitation)) + geom_smooth(method = "loess")
-brestzon <- ggplot(precipitation, aes(brestzon, Precipitation)) + geom_smooth(method = "loess")
-kefzon <- ggplot(precipitation, aes(kefzon, Precipitation)) + geom_smooth(method = "loess")
-corunmer <- ggplot(precipitation, aes(corunmer, Precipitation)) + geom_smooth(method = "loess")
-naoi <- ggplot(precipitation, aes(naoi, Precipitation)) + geom_smooth(method = "loess")
-sstatlan <- ggplot(precipitation, aes(sstatlan, Precipitation)) + geom_smooth(method = "loess")
-sstengch <- ggplot(precipitation, aes(sstengch, Precipitation)) + geom_smooth(method = "loess")
-sstmed <- ggplot(precipitation, aes(sstmed, Precipitation)) + geom_smooth(method = "loess")
-grid.arrange(mslp, w, s, brestzon, kefzon, corunmer, naoi, sstatlan, sstengch, sstmed, ncol = 3, nrow = 4)
-# Regression model
-model = lm(data = precipitation, Precipitation ~ mslp + brestzon + kefzon + sstatlan + sstengch)
-summary(model)
-# two sample t test
-sample1 = precipitation$Precipitation[1:24]
-sample2 = precipitation$Precipitation[25:50]
-t.test(sample1, sample2, var.equal = FALSE)
-```
